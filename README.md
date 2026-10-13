@@ -89,6 +89,28 @@ Nothing is published to NuGet yet. Run it from source, or build and install it l
 dotnet run --project src/Pondhawk.Diagram.Tool -- examples/shop.json
 ```
 
+## Cake Frosting
+
+`Cake.Pondhawk.Diagram` is a Cake addin for builds that already run on Frosting. Reference it
+from the build project and call it from a task:
+
+```csharp
+using Cake.Pondhawk.Diagram;
+
+[TaskName("Diagram")]
+public sealed class DiagramTask : FrostingTask<BuildContext>
+{
+    public override void Run(BuildContext context) =>
+        context.GenerateDiagram("docs/model.json", "docs/schema.html");
+}
+```
+
+Relative paths resolve against the build's working directory, the output directory is created if
+it is missing, and a missing or invalid model fails the build with every error listed. Pass a
+`DiagramSettings` to override the title or description, or pass a `DiagramModel` built in code
+instead of a path. It runs the library in-process, so the command-line tool need not be installed.
+It is built against Cake 6.
+
 ## Library
 
 `Pondhawk.Diagram` has no package dependencies. A .NET project can skip the JSON file and build
@@ -120,6 +142,7 @@ writes the format, which is the easy way to produce it from .NET.
 dotnet build pondhawk-diagram.slnx
 dotnet run --project tests/Pondhawk.Diagram.Tests
 dotnet run --project tests/Pondhawk.Diagram.Tool.Tests
+dotnet run --project tests/Cake.Pondhawk.Diagram.Tests
 ```
 
 Run the tests with `dotnet run`, not `dotnet test`: they are xunit v3 self-hosted executables.

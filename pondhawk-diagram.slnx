@@ -2,6 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/Pondhawk.Diagram/Pondhawk.Diagram.csproj" />
     <Project Path="src/Pondhawk.Diagram.Tool/Pondhawk.Diagram.Tool.csproj" />
+    <Project Path="src/Cake.Pondhawk.Diagram/Cake.Pondhawk.Diagram.csproj" />
   </Folder>
   <Folder Name="/examples/">
     <Project Path="examples/EfCoreExporter/EfCoreExporter.csproj" />
@@ -9,5 +10,6 @@
   <Folder Name="/tests/">
     <Project Path="tests/Pondhawk.Diagram.Tests/Pondhawk.Diagram.Tests.csproj" />
     <Project Path="tests/Pondhawk.Diagram.Tool.Tests/Pondhawk.Diagram.Tool.Tests.csproj" />
+    <Project Path="tests/Cake.Pondhawk.Diagram.Tests/Cake.Pondhawk.Diagram.Tests.csproj" />
   </Folder>
 </Solution>

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <Description>Cake addin that draws an interactive HTML ER diagram from a JSON data model.</Description>
+        <PackageTags>cake;cake-addin;cake-build;er-diagram</PackageTags>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Pondhawk.Diagram\Pondhawk.Diagram.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- The build that loads the addin brings its own Cake; this is only to compile against. -->
+        <PackageReference Include="Cake.Core" PrivateAssets="all" />
+    </ItemGroup>
+
+</Project>

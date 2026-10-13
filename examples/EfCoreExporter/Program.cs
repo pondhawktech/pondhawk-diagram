@@ -1,7 +1,8 @@
 using EfCoreExporter;
 using Microsoft.EntityFrameworkCore;
 
-// Writes the model to standard output, ready to pipe into pondhawk-diagram:
+// Writes the model to the file named by the first argument, or to standard output without one,
+// ready to pipe into pondhawk-diagram:
 //   dotnet run --project examples/EfCoreExporter | pondhawk-diagram - -o shop.html
 
 using var context = new ShopContext();
@@ -16,7 +17,10 @@ if (errors.Count > 0)
     return 1;
 }
 
-Console.WriteLine(model.ToJson());
+if (args.Length > 0)
+    File.WriteAllText(args[0], model.ToJson());
+else
+    Console.WriteLine(model.ToJson());
 return 0;
 
 // A small model that exercises what an exporter has to cope with: an enum, an owned type,

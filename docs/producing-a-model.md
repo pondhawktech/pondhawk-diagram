@@ -15,7 +15,8 @@ dotnet tool install Pondhawk.Diagram.Tool --global --add-source artifacts --vers
 ```
 
 The same folder holds `Pondhawk.Diagram`, the library, for a .NET project that wants the model
-types and `DiagramGenerator` directly. Add the folder as a package source, or reference
+types and `DiagramGenerator` directly, and `Cake.Pondhawk.Diagram`, the addin for Cake Frosting
+builds. Add the folder as a package source, or reference
 `src/Pondhawk.Diagram/Pondhawk.Diagram.csproj` from a clone or submodule.
 
 A project in another language needs only the tool: write the JSON however is convenient and pass
@@ -204,6 +205,30 @@ a build target, a script, a CI step:
 
 ```bash
 dotnet run --project tools/DiagramExport | pondhawk-diagram - -o docs/schema.html
+```
+
+In a Cake Frosting build, reference `Cake.Pondhawk.Diagram` and do both steps in one task. This
+assumes an exporter that writes to the path it is given, as the example one does:
+
+```csharp
+using Cake.Common.IO;
+using Cake.Common.Tools.DotNet;
+using Cake.Core.IO;
+using Cake.Frosting;
+using Cake.Pondhawk.Diagram;
+
+[TaskName("Diagram")]
+public sealed class DiagramTask : FrostingTask<BuildContext>
+{
+    public override void Run(BuildContext context)
+    {
+        // Absolute, because the exporter is a separate process with its own idea of "here".
+        var model = context.MakeAbsolute(new FilePath("docs/model.json"));
+
+        context.DotNetRun("tools/DiagramExport", new ProcessArgumentBuilder().AppendQuoted(model.FullPath));
+        context.GenerateDiagram(model, "docs/schema.html");
+    }
+}
 ```
 
 The output embeds the time it was generated, so it differs on every run. Commit the model JSON if
