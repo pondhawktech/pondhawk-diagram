@@ -17,3 +17,6 @@ coverage/
 
 # Windows artifact
 nul
+
+# Local packages
+artifacts/

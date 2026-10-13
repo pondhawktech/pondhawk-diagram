@@ -4,6 +4,9 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <!-- Examples only; the library and tool reference no packages -->
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.12" />
+
         <!-- Testing -->
         <PackageVersion Include="xunit.v3" Version="3.2.2" />
         <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />

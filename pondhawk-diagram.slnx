@@ -3,6 +3,9 @@
     <Project Path="src/Pondhawk.Diagram/Pondhawk.Diagram.csproj" />
     <Project Path="src/Pondhawk.Diagram.Tool/Pondhawk.Diagram.Tool.csproj" />
   </Folder>
+  <Folder Name="/examples/">
+    <Project Path="examples/EfCoreExporter/EfCoreExporter.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Pondhawk.Diagram.Tests/Pondhawk.Diagram.Tests.csproj" />
     <Project Path="tests/Pondhawk.Diagram.Tool.Tests/Pondhawk.Diagram.Tool.Tests.csproj" />

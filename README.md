@@ -58,6 +58,10 @@ A complete example is in [`examples/shop.json`](examples/shop.json).
 - Unknown properties are errors, so a misspelt key is caught rather than ignored. Comments and
   trailing commas are allowed.
 
+**Writing an exporter?** [`docs/producing-a-model.md`](docs/producing-a-model.md) has the full
+field reference, every rule the loader enforces, how to map an ORM onto the format, and a working
+EF Core exporter in [`examples/EfCoreExporter`](examples/EfCoreExporter).
+
 The model is checked before anything is drawn, and every problem is reported at once: duplicate
 tables or columns, a foreign key or index naming a column the table lacks, a reference to a table
 or column that is not in the model, a column using an enum that is not defined.
@@ -78,7 +82,8 @@ my-exporter | pondhawk-diagram - -o docs/schema.html
 
 Exit code is 0 on success, 1 if the model could not be read or is not valid, 2 for bad arguments.
 
-Until a package is published, run it from source:
+Nothing is published to NuGet yet. Run it from source, or build and install it locally as
+[`docs/producing-a-model.md`](docs/producing-a-model.md#getting-the-tool) describes:
 
 ```bash
 dotnet run --project src/Pondhawk.Diagram.Tool -- examples/shop.json
@@ -106,7 +111,8 @@ writes the format, which is the easy way to produce it from .NET.
 - Relationships are the foreign keys in the model; nothing is inferred from column names.
 - Each foreign key column is drawn against the first referenced column, so a composite key shows
   the right tables but not column-to-column pairing.
-- There are no exporters here. Each consuming project writes its own.
+- No exporter ships with the tool. Each consuming project writes its own; the EF Core one in
+  `examples/` is a starting point to copy.
 
 ## Building
 
