@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <Description>Renders a JSON data model as a single self-contained interactive HTML ER diagram.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="dagre.min.js" LogicalName="Pondhawk.Diagram.dagre.min.js" />
+        <EmbeddedResource Include="..\..\schema\diagram-model.schema.json" LogicalName="Pondhawk.Diagram.diagram-model.schema.json" Link="diagram-model.schema.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Pondhawk.Diagram.Tests" />
+    </ItemGroup>
+
+</Project>

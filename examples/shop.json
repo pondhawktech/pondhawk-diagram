@@ -1,0 +1,53 @@
+{
+  "$schema": "../schema/diagram-model.schema.json",
+  "version": 1,
+  "name": "Shop",
+  "description": "Orders and the customers who place them",
+  "tables": [
+    {
+      "name": "Customers",
+      "columns": [
+        { "name": "Id", "type": "int", "primaryKey": true },
+        { "name": "Email", "type": "varchar(255)" },
+        { "name": "Name", "type": "varchar(100)", "nullable": true }
+      ],
+      "indexes": [{ "name": "IX_Customers_Email", "columns": ["Email"], "unique": true }]
+    },
+    {
+      "name": "Orders",
+      "note": "One row per checkout",
+      "columns": [
+        { "name": "Id", "type": "int", "primaryKey": true },
+        { "name": "CustomerId", "type": "int" },
+        { "name": "Status", "type": "int", "enum": "OrderStatus", "note": "Stored as its numeric value" },
+        { "name": "PlacedAt", "type": "timestamptz" }
+      ],
+      "foreignKeys": [
+        { "name": "FK_Orders_Customers", "columns": ["CustomerId"], "references": { "table": "Customers", "columns": ["Id"] } }
+      ]
+    },
+    {
+      "name": "OrderLines",
+      "columns": [
+        { "name": "Id", "type": "int", "primaryKey": true },
+        { "name": "OrderId", "type": "int" },
+        { "name": "Sku", "type": "varchar(40)" },
+        { "name": "Quantity", "type": "int" }
+      ],
+      "foreignKeys": [
+        { "columns": ["OrderId"], "references": { "table": "Orders", "columns": ["Id"] } }
+      ]
+    },
+    {
+      "name": "OrderTotals",
+      "view": true,
+      "columns": [
+        { "name": "OrderId", "type": "int" },
+        { "name": "Quantity", "type": "int" }
+      ]
+    }
+  ],
+  "enums": [
+    { "name": "OrderStatus", "values": ["Open", "Paid", "Shipped", "Cancelled"] }
+  ]
+}

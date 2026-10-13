@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Pondhawk diagram model",
+  "description": "Everything pondhawk-diagram draws. The consuming project produces this file.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "const": 1, "description": "Format version. This schema describes version 1." },
+    "name": { "type": "string", "description": "Shown as the diagram title." },
+    "description": { "type": "string", "description": "Shown beside the title." },
+    "tables": { "type": "array", "items": { "$ref": "#/$defs/table" } },
+    "enums": { "type": "array", "items": { "$ref": "#/$defs/enumType" } }
+  },
+  "$defs": {
+    "table": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "schema": { "type": "string", "description": "Database schema or namespace. Shown only when the model has more than one." },
+        "view": { "type": "boolean", "default": false },
+        "note": { "type": "string", "description": "Shown as a tooltip." },
+        "columns": { "type": "array", "items": { "$ref": "#/$defs/column" } },
+        "foreignKeys": { "type": "array", "items": { "$ref": "#/$defs/foreignKey" } },
+        "indexes": { "type": "array", "items": { "$ref": "#/$defs/tableIndex" } }
+      }
+    },
+    "column": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "type": { "type": "string", "description": "Shown as written, e.g. \"varchar(255)\" or \"string\"." },
+        "nullable": { "type": "boolean", "default": false },
+        "primaryKey": { "type": "boolean", "default": false },
+        "enum": { "type": "string", "description": "Name of an entry in enums that this column holds." },
+        "note": { "type": "string", "description": "Shown as a tooltip." }
+      }
+    },
+    "foreignKey": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["columns", "references"],
+      "properties": {
+        "name": { "type": "string" },
+        "columns": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "references": { "$ref": "#/$defs/tableReference" }
+      }
+    },
+    "tableReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["table", "columns"],
+      "properties": {
+        "schema": { "type": "string", "description": "Omit to mean the referring table's schema, then any schema where the name is unique." },
+        "table": { "type": "string", "minLength": 1 },
+        "columns": { "type": "array", "items": { "type": "string" }, "description": "One per foreign key column, in the same order." }
+      }
+    },
+    "tableIndex": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["columns"],
+      "properties": {
+        "name": { "type": "string" },
+        "columns": { "type": "array", "items": { "type": "string" } },
+        "unique": { "type": "boolean", "default": false }
+      }
+    },
+    "enumType": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "note": { "type": "string", "description": "Shown as a tooltip." },
+        "values": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}
