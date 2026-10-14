@@ -1,0 +1,47 @@
+name: Promote to nuget.org
+
+# Run by hand. Takes the packages attached to an existing GitHub Release and pushes those exact
+# files to nuget.org, so what goes public is what was built, tested and published by Release —
+# nothing is rebuilt. A version on nuget.org can be unlisted but never replaced or removed.
+#
+# Needs a repository secret NUGET_ORG_API_KEY: a nuget.org key allowed to push Pondhawk.Diagram,
+# Pondhawk.Diagram.Tool and Cake.Pondhawk.Diagram.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to promote, e.g. v1.2.0"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ inputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Download the release's packages
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release download "$TAG" --pattern "*.nupkg" --dir artifacts
+
+      - name: Push to nuget.org
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_ORG_API_KEY }}
+        run: >
+          dotnet run --project build --
+          --target=Push
+          --source="https://api.nuget.org/v3/index.json"

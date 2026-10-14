@@ -11,6 +11,11 @@
         <Company>Pondhawk Technologies</Company>
         <Copyright>Copyright (c) 2026 Pondhawk Technologies</Copyright>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Authors>Pondhawk Technologies</Authors>
+        <PackageProjectUrl>https://github.com/pondhawktech/pondhawk-diagram</PackageProjectUrl>
+        <!-- GitHub Packages uses this to attach a pushed package to the repository -->
+        <RepositoryUrl>https://github.com/pondhawktech/pondhawk-diagram</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
     </PropertyGroup>
 
 </Project>

@@ -10,11 +10,11 @@ Nothing is published to NuGet yet. Until it is, build the packages from a clone 
 that folder:
 
 ```bash
-dotnet pack pondhawk-diagram.slnx -c Release -o artifacts
+dotnet run --project build -- --target=Pack
 dotnet tool install Pondhawk.Diagram.Tool --global --add-source artifacts --version 0.0.0-dev
 ```
 
-The same folder holds `Pondhawk.Diagram`, the library, for a .NET project that wants the model
+`artifacts/` also holds `Pondhawk.Diagram`, the library, for a .NET project that wants the model
 types and `DiagramGenerator` directly, and `Cake.Pondhawk.Diagram`, the addin for Cake Frosting
 builds. Add the folder as a package source, or reference
 `src/Pondhawk.Diagram/Pondhawk.Diagram.csproj` from a clone or submodule.

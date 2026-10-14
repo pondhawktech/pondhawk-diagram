@@ -1,14 +1,36 @@
 # CLAUDE.md
 
-## Running tests
+## Build System
 
-Use `dotnet run`, not `dotnet test` — the xunit v3 projects are self-hosted executables:
+This project uses **Cake Frosting** (`build/` directory). Use it instead of running `dotnet build`
+or `dotnet pack` directly.
+
+```bash
+dotnet run --project build                                              # Clean → Restore → Build → Test
+dotnet run --project build -- --target=Pack                             # ... → Pack, into artifacts/
+dotnet run --project build -- --target=Pack --release-version=1.2.0     # a release build
+```
+
+`Push` sends whatever is in `artifacts/` to `--source`, with the feed's key in the
+`NUGET_API_KEY` environment variable. It does not depend on `Pack` on purpose — promotion to
+nuget.org pushes a release's existing packages rather than rebuilding them — and it refuses
+`0.0.0-dev` packages. Do not run it by hand against a real feed; releases go through the
+workflows in `.github/workflows` (tag → GitHub Packages and a GitHub Release; nuget.org by the
+manual Promote workflow).
+
+### Running tests
+
+Always run tests using `dotnet run` (not `dotnet test`) because xunit v3 projects are self-hosted
+executables:
 
 ```bash
 dotnet run --project tests/Pondhawk.Diagram.Tests --configuration Release
 dotnet run --project tests/Pondhawk.Diagram.Tool.Tests --configuration Release
 dotnet run --project tests/Cake.Pondhawk.Diagram.Tests --configuration Release
 ```
+
+A new test project must be added to `Projects` in `build/Tasks/TestTask.cs`, or the build will
+not run it.
 
 ## Layout
 

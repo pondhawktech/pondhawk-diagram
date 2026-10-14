@@ -12,4 +12,7 @@
     <Project Path="tests/Pondhawk.Diagram.Tool.Tests/Pondhawk.Diagram.Tool.Tests.csproj" />
     <Project Path="tests/Cake.Pondhawk.Diagram.Tests/Cake.Pondhawk.Diagram.Tests.csproj" />
   </Folder>
+  <Folder Name="/build/">
+    <Project Path="build/Build.csproj" />
+  </Folder>
 </Solution>

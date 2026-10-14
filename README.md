@@ -138,17 +138,28 @@ writes the format, which is the easy way to produce it from .NET.
 
 ## Building
 
+The build is [Cake Frosting](https://cakebuild.net/docs/running-builds/runners/cake-frosting), in
+`build/`:
+
 ```bash
-dotnet build pondhawk-diagram.slnx
-dotnet run --project tests/Pondhawk.Diagram.Tests
-dotnet run --project tests/Pondhawk.Diagram.Tool.Tests
-dotnet run --project tests/Cake.Pondhawk.Diagram.Tests
+dotnet run --project build                    # clean, restore, build, test
+dotnet run --project build -- --target=Pack   # the same, then packages into artifacts/
 ```
 
-Run the tests with `dotnet run`, not `dotnet test`: they are xunit v3 self-hosted executables.
+To run one test suite on its own, use `dotnet run --project tests/<name>`, not `dotnet test`:
+the tests are xunit v3 self-hosted executables.
+
+## Releasing
+
+The tag is the version. Pushing `v1.2.0` runs the Release workflow, which builds and tests that
+commit, pushes the three packages to GitHub Packages, and attaches them to a GitHub Release.
+
+nuget.org is a separate, manual step: run the **Promote to nuget.org** workflow with the tag. It
+pushes the files attached to that release rather than rebuilding, so what reaches nuget.org is
+what was already published and tried. It needs a repository secret `NUGET_ORG_API_KEY`.
 
 ## Origin and licence
 
-The renderer was extracted from [pondhawk-generation](../pondhawk-generation), which dropped
+The renderer was extracted from [pondhawk-generation](https://github.com/pondhawktech/pondhawk-generation), which dropped
 diagram generation when it was refocused. MIT; see `LICENSE`. The embedded dagre and graphlib are
 MIT as well; see `THIRD-PARTY-NOTICES.md`.
