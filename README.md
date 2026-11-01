@@ -156,7 +156,7 @@ commit, pushes the three packages to GitHub Packages, and attaches them to a Git
 
 nuget.org is a separate, manual step: run the **Promote to nuget.org** workflow with the tag. It
 pushes the files attached to that release rather than rebuilding, so what reaches nuget.org is
-what was already published and tried. It needs a repository secret `NUGET_ORG_API_KEY`.
+what was already published and tried. It uses nuget.org Trusted Publishing, so it needs no secret.
 
 ## Origin and licence
 

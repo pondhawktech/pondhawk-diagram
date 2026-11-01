@@ -4,8 +4,8 @@ name: Promote to nuget.org
 # files to nuget.org, so what goes public is what was built, tested and published by Release —
 # nothing is rebuilt. A version on nuget.org can be unlisted but never replaced or removed.
 #
-# Needs a repository secret NUGET_ORG_API_KEY: a nuget.org key allowed to push Pondhawk.Diagram,
-# Pondhawk.Diagram.Tool and Cake.Pondhawk.Diagram.
+# Uses nuget.org Trusted Publishing: no secret. The policy names this workflow file, and its package
+# owner must be allowed to push Pondhawk.Diagram, Pondhawk.Diagram.Tool and Cake.Pondhawk.Diagram.
 
 on:
   workflow_dispatch:
@@ -17,6 +17,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   promote:
@@ -38,9 +39,15 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release download "$TAG" --pattern "*.nupkg" --dir artifacts
 
+      - name: NuGet login (OIDC to a temporary API key)
+        id: login
+        uses: NuGet/login@v1
+        with:
+          user: kampilan
+
       - name: Push to nuget.org
         env:
-          NUGET_API_KEY: ${{ secrets.NUGET_ORG_API_KEY }}
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
         run: >
           dotnet run --project build --
           --target=Push
