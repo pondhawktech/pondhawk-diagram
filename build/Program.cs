@@ -7,8 +7,8 @@ return new CakeHost()
 
 public class BuildContext : FrostingContext
 {
-    /// <summary>What a package is versioned when no release version is given; see Directory.Build.props.</summary>
-    public const string LocalVersion = "0.0.0-dev";
+    /// <summary>The suffix a package gets when no release version is given; see Directory.Build.props.</summary>
+    public const string LocalSuffix = "-dev";
 
     /// <summary>Where Pack writes packages and Push reads them.</summary>
     public const string ArtifactsDirectory = "artifacts";
@@ -31,8 +31,7 @@ public class BuildContext : FrostingContext
         SolutionPath = context.Arguments.GetArgument("solution") ?? "pondhawk-diagram.slnx";
         Configuration = context.Arguments.GetArgument("configuration") ?? "Release";
 
-        // Accepts either "1.0.0" or the tag it came from, "v1.0.0", so the release workflow can
-        // pass the tag name through untouched.
+        // Accepts either "1.0.0" or "v1.0.0".
         var version = context.Arguments.GetArgument("release-version");
         Version = string.IsNullOrWhiteSpace(version) ? null : version.TrimStart('v', 'V');
 

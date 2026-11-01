@@ -2,11 +2,12 @@
 
     <PropertyGroup>
         <!--
-          The release tag is the source of truth. CI passes the tag through as -p:Version, and
-          this default is what a local build gets — deliberately not a plausible release number,
-          so a hand-built binary is never mistaken for one that shipped.
+          The last released version. The promote workflow bumps and commits it, and passes the
+          release version as -p:Version. A build without that gets the suffix, so a hand-built
+          binary is never mistaken for one that shipped.
         -->
-        <Version Condition="'$(Version)' == ''">0.0.0-dev</Version>
+        <VersionPrefix>0.1.0</VersionPrefix>
+        <VersionSuffix Condition="'$(Version)' == ''">dev</VersionSuffix>
         <Product>pondhawk-diagram</Product>
         <Company>Pondhawk Technologies</Company>
         <Copyright>Copyright (c) 2026 Pondhawk Technologies</Copyright>

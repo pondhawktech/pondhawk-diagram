@@ -1,54 +1,151 @@
-name: Promote to nuget.org
+name: Publish to nuget.org
 
-# Run by hand. Takes the packages attached to an existing GitHub Release and pushes those exact
-# files to nuget.org, so what goes public is what was built, tested and published by Release —
-# nothing is rebuilt. A version on nuget.org can be unlisted but never replaced or removed.
+# Run by hand. Bumps the version, builds, tests, and packs once, and pushes those packages.
+# The version file is committed only after the push, so a failed run leaves no false release.
 #
-# Uses nuget.org Trusted Publishing: no secret. The policy names this workflow file, and its package
-# owner must be allowed to push Pondhawk.Diagram, Pondhawk.Diagram.Tool and Cake.Pondhawk.Diagram.
+# A push to nuget.org is PERMANENT: a version can be unlisted but never replaced or deleted.
+#
+# Uses nuget.org Trusted Publishing, so it needs no secret. The policy names this file by name.
 
 on:
   workflow_dispatch:
     inputs:
-      tag:
-        description: "Release tag to promote, e.g. v1.2.0"
+      bump:
+        description: 'Version to publish: bump the file first, or none to publish it as-is'
+        type: choice
         required: true
-        type: string
+        default: patch
+        options:
+          - none
+          - patch
+          - minor
+          - major
+      dry_run:
+        description: 'Build, test, and pack, then publish nothing'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
-  contents: read
-  id-token: write
+  contents: write   # commit the bump, create the tag and the GitHub release
+  packages: write   # mirror the release to GitHub Packages
+  id-token: write   # get the OIDC token that NuGet/login exchanges for a temporary key
+
+concurrency:
+  group: release
+  cancel-in-progress: false   # never interrupt a run that may already have pushed
 
 jobs:
-  promote:
+  release:
     runs-on: ubuntu-latest
-    env:
-      TAG: ${{ inputs.tag }}
+
+    # Add a required reviewer to this environment in the repository settings to make
+    # every nuget.org push need approval.
+    environment: nuget.org
+
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.tag }}
+      - name: Guard - releases come from master
+        if: github.ref != 'refs/heads/master' && !inputs.dry_run
+        run: |
+          echo "::error::Release must run on master; this run targeted ${GITHUB_REF}."
+          exit 1
 
-      - name: Setup .NET 10
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: "10.0.x"
+      - name: Checkout
+        uses: actions/checkout@v7
 
-      - name: Download the release's packages
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Resolve version
+        id: version
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release download "$TAG" --pattern "*.nupkg" --dir artifacts
+          BUMP: ${{ inputs.bump }}
+        run: dotnet run --project build -- --target=Version --bump="$BUMP"
+
+      # Asks the remote: a default checkout has no tags, so a local lookup would always pass.
+      - name: Refuse a version that was already released
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          BUMP: ${{ inputs.bump }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          if git ls-remote --exit-code --tags origin "refs/tags/v${VERSION}" >/dev/null; then
+            echo "::error::Tag v${VERSION} already exists. Choose a bump rather than 'none'."
+            exit 1
+          fi
+          {
+            echo "### Releasing \`${VERSION}\`"
+            echo ""
+            echo "- Bump: \`${BUMP}\`"
+            echo "- Commit: \`${GITHUB_SHA}\`"
+            echo "- Dry run: \`${DRY_RUN}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Build, Test, and Pack
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          dotnet run --project build -- --target=Pack --release-version="$VERSION"
+          for id in Pondhawk.Diagram Pondhawk.Diagram.Tool Cake.Pondhawk.Diagram; do
+            expected="artifacts/${id}.${VERSION}.nupkg"
+            [ -f "$expected" ] || { echo "::error::Expected $expected; artifacts holds: $(ls artifacts/)"; exit 1; }
+          done
+
+      - name: Upload package
+        uses: actions/upload-artifact@v7
+        with:
+          name: nupkg-${{ steps.version.outputs.version }}
+          path: artifacts/*.nupkg
 
       - name: NuGet login (OIDC to a temporary API key)
+        if: '!inputs.dry_run'
         id: login
         uses: NuGet/login@v1
         with:
           user: kampilan
 
-      - name: Push to nuget.org
+      # No skip-duplicate here: on a permanent feed, a duplicate is an error.
+      - name: Publish to nuget.org
+        if: '!inputs.dry_run'
         env:
           NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
-        run: >
-          dotnet run --project build --
-          --target=Push
-          --source="https://api.nuget.org/v3/index.json"
+        run: dotnet run --project build -- --target=Push --source=https://api.nuget.org/v3/index.json --skip-duplicate=false
+
+      - name: Mirror to GitHub Packages
+        if: '!inputs.dry_run'
+        env:
+          NUGET_API_KEY: ${{ secrets.GITHUB_TOKEN }}
+        run: dotnet run --project build -- --target=Push --source=https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+
+      - name: Commit the version bump
+        if: '!inputs.dry_run'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- Directory.Build.props; then
+            echo "Directory.Build.props already reads ${VERSION}; nothing to commit."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Directory.Build.props
+          git commit -m "Release ${VERSION} [skip ci]"
+          git push origin HEAD:master
+
+      - name: Tag and create the GitHub release
+        if: '!inputs.dry_run'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          gh release create "v${VERSION}" \
+            --target "$(git rev-parse HEAD)" \
+            --title "v${VERSION}" \
+            --generate-notes \
+            artifacts/*.nupkg

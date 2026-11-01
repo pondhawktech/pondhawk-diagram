@@ -8,8 +8,7 @@ using Cake.Frosting;
 
 /// <summary>
 /// Sends the packages already in the artifacts directory to --source. Deliberately not dependent
-/// on Pack: promoting a release to another feed must push the packages that were tested and
-/// released, not a fresh build of them.
+/// on Pack: a release must push the packages it already tested, not a fresh build of them.
 /// </summary>
 [TaskName("Push")]
 public sealed class PushTask : FrostingTask<BuildContext>
@@ -25,7 +24,7 @@ public sealed class PushTask : FrostingTask<BuildContext>
         if (packages.Count == 0)
             throw new CakeException($"No packages in {BuildContext.ArtifactsDirectory}/. Run Pack first, or download a release's packages into it.");
 
-        var local = packages.Where(p => p.GetFilename().FullPath.Contains(BuildContext.LocalVersion)).ToList();
+        var local = packages.Where(p => p.GetFilename().FullPath.Contains(BuildContext.LocalSuffix)).ToList();
         if (local.Count > 0)
             throw new CakeException(
                 $"Refusing to push local builds ({string.Join(", ", local.Select(p => p.GetFilename()))}). Pack with --release-version.");
@@ -43,9 +42,9 @@ public sealed class PushTask : FrostingTask<BuildContext>
                 Source = context.PackageSource,
                 ApiKey = apiKey,
 
-                // Makes a re-run after a partial failure finish the job instead of stopping at
-                // the first package that already went up.
-                SkipDuplicate = true
+                // GitHub Packages keeps it on, so a mirror re-run finishes the job. nuget.org turns it
+                // off: on a permanent feed, a duplicate is an error.
+                SkipDuplicate = context.Argument("skip-duplicate", true)
             });
         }
     }
