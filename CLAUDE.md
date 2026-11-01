@@ -11,12 +11,11 @@ dotnet run --project build -- --target=Pack                             # ... �
 dotnet run --project build -- --target=Pack --release-version=1.2.0     # a release build
 ```
 
+`Version` reads the last released version from `Directory.Build.props`, and `--bump=patch` rewrites it.
 `Push` sends whatever is in `artifacts/` to `--source`, with the feed's key in the
-`NUGET_API_KEY` environment variable. It does not depend on `Pack` on purpose — promotion to
-nuget.org pushes a release's existing packages rather than rebuilding them — and it refuses
-`0.0.0-dev` packages. Do not run it by hand against a real feed; releases go through the
-workflows in `.github/workflows` (tag → GitHub Packages and a GitHub Release; nuget.org by the
-manual Promote workflow).
+`NUGET_API_KEY` environment variable. It does not depend on `Pack`, so a release pushes the packages
+it already tested, and it refuses `-dev` packages. Do not run it by hand against a real feed;
+releases go through the manual `promote.yml` workflow.
 
 ### Running tests
 

@@ -151,12 +151,12 @@ the tests are xunit v3 self-hosted executables.
 
 ## Releasing
 
-The tag is the version. Pushing `v1.2.0` runs the Release workflow, which builds and tests that
-commit, pushes the three packages to GitHub Packages, and attaches them to a GitHub Release.
-
-nuget.org is a separate, manual step: run the **Promote to nuget.org** workflow with the tag. It
-pushes the files attached to that release rather than rebuilding, so what reaches nuget.org is
-what was already published and tried. It uses nuget.org Trusted Publishing, so it needs no secret.
+Run the **Publish to nuget.org** workflow (`promote.yml`) by hand. Choose `bump` (`none`, `patch`,
+`minor` or `major`). It bumps the version in `Directory.Build.props`, then builds, tests, and packs.
+It pushes the three packages to nuget.org and GitHub Packages, commits the bump, and creates the
+tag and GitHub Release. `dry_run` stops before it publishes, and can run on any branch. It uses
+nuget.org Trusted Publishing, so it needs no secret. A push to nuget.org is permanent: a version
+can be unlisted but never replaced.
 
 ## Origin and licence
 
