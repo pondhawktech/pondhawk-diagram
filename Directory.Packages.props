@@ -10,6 +10,7 @@
 
         <!-- Build -->
         <PackageVersion Include="Cake.Frosting" Version="6.3.0" />
+        <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="10.0.15" />
 
         <!-- Examples only; the library and tool reference no packages -->
         <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.15" />
