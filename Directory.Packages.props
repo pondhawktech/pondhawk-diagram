@@ -5,14 +5,14 @@
 
     <ItemGroup>
         <!-- Cake addin. 6.0.0 is the oldest Cake the addin loads into, so it is not bumped with each release -->
-        <PackageVersion Include="Cake.Core" Version="6.0.0" />
-        <PackageVersion Include="Cake.Testing" Version="6.0.0" />
+        <PackageVersion Include="Cake.Core" Version="6.3.0" />
+        <PackageVersion Include="Cake.Testing" Version="6.3.0" />
 
         <!-- Build -->
         <PackageVersion Include="Cake.Frosting" Version="6.3.0" />
 
         <!-- Examples only; the library and tool reference no packages -->
-        <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.12" />
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.15" />
 
         <!-- Testing -->
         <PackageVersion Include="xunit.v3" Version="3.2.2" />
