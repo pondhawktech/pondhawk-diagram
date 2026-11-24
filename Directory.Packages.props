@@ -9,7 +9,7 @@
         <PackageVersion Include="Cake.Testing" Version="6.3.0" />
 
         <!-- Build -->
-        <PackageVersion Include="Cake.Frosting" Version="6.3.0" />
+        <PackageVersion Include="Cake.Frosting" Version="7.0.0" />
         <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="10.0.15" />
 
         <!-- Examples only; the library and tool reference no packages -->
